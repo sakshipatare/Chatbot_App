@@ -7,8 +7,8 @@ import SignupForm from './components/Auth/Signup';
 import DashboardLayout from './components/Dashboard/Dashboard';
 import DetailsPage from './components/Dashboard/Details/Details';
 import Documents from './components/Dashboard/Document/Document';
-// import History from './components/Dashboard/History/History';
-// import Script from './components/Dashboard/Script/Script';
+import History from './components/Dashboard/History/History';
+import Script from './components/Dashboard/Script/Script';
 
 import './App.css';
 
@@ -23,10 +23,11 @@ function App() {
 
           {/* Dashboard with nested routes */}
           <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<History />} /> 
             <Route path="details" element={<DetailsPage />} />
-             <Route path="documents" element={<Documents />} />
-            {/*<Route path="history" element={<History />} />
-            <Route path="script" element={<Script />} /> */}
+            <Route path="documents" element={<Documents />} />
+            <Route path="history" element={<History />} />
+            <Route path="script" element={<Script />} />
           </Route>
         </Routes>
       </BrowserRouter>

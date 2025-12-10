@@ -40,7 +40,7 @@ export default function Login() {
                 console.log(localStorage.getItem("userData"));
                 console.log(localStorage.getItem("token"));
 
-                navigate("/dashboard");
+                navigate("/dashboard/history");
             }else{
                 alert(data.message || "Login failed. Please try again.");
             }
@@ -66,7 +66,7 @@ export default function Login() {
     if (response.ok) {
       localStorage.setItem("userData", JSON.stringify(data.user));
       localStorage.setItem("token", data.token);
-      navigate("/dashboard");
+      navigate("/dashboard/history");
     } else {
       alert(data.message || "Google sign-in failed");
     }
