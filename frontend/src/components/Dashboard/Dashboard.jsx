@@ -25,6 +25,9 @@ export default function DashboardLayout() {
           <NavLink to="history" className={({ isActive }) => isActive ? "font-bold text-blue-600" : "text-gray-700"}>
             Dashboard
           </NavLink>
+          <NavLink to="tickets" className={({ isActive }) => isActive ? "font-bold text-blue-600" : "text-gray-700"}>
+            Ticket
+          </NavLink>
           <NavLink to="script" className={({ isActive }) => isActive ? "font-bold text-blue-600" : "text-gray-700"}>
             Script
           </NavLink>

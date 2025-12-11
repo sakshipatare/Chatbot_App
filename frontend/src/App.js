@@ -9,6 +9,7 @@ import DetailsPage from './components/Dashboard/Details/Details';
 import Documents from './components/Dashboard/Document/Document';
 import History from './components/Dashboard/History/History';
 import Script from './components/Dashboard/Script/Script';
+import Ticket from './components/Dashboard/Ticket/Ticket';
 
 import './App.css';
 
@@ -27,6 +28,7 @@ function App() {
             <Route path="details" element={<DetailsPage />} />
             <Route path="documents" element={<Documents />} />
             <Route path="history" element={<History />} />
+            <Route path="tickets" element={<Ticket />} />
             <Route path="script" element={<Script />} />
           </Route>
         </Routes>
