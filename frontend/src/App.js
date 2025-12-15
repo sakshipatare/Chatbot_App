@@ -2,6 +2,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from './components/Home/Home';
+import Contact from './components/Home/Contact';
 import Login from './components/Auth/Login';
 import SignupForm from './components/Auth/Signup';
 import DashboardLayout from './components/Dashboard/Dashboard';
@@ -19,6 +20,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignupForm />} />
 
