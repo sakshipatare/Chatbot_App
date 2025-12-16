@@ -16,4 +16,9 @@ export default class TicketRepository {
       { new: true }
     );
   }
+
+  async getTicketsByUser(userId) {
+  return await Ticket.find({ userId }).sort({ createdAt: -1 });
+}
+
 }
