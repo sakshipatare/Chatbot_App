@@ -24,6 +24,33 @@ export default class TicketController {
     }
   }
 
+  async createWidgetTicket(req, res) {
+  try {
+    const { issue, widgetUserId } = req.body;
+
+    if (!widgetUserId) {
+      return res.status(400).json({ message: "Widget userId missing" });
+    }
+
+    // VISITOR DETAILS (who raised ticket)
+    const name = req.user.name;
+    const email = req.user.email;
+
+    // DASHBOARD OWNER (script owner)
+    const ticket = await ticketRepo.createTicket({
+      userId: widgetUserId, //  OWNER DASHBOARD
+      name,                 // visitor
+      email,                // visitor
+      issue,
+    });
+
+    res.status(201).json({ success: true, ticket });
+  } catch (error) {
+    res.status(500).json({ message: "Error creating widget ticket", error });
+  }
+}
+
+
   async getTickets(req, res) {
   try {
     const userId = req.user._id;

@@ -16,4 +16,9 @@ ticketRouter.patch("/:id", authMiddleware, (req, res) =>
   controller.updateTicketStatus(req, res)
 );
 
+ticketRouter.post("/widget",authMiddleware,(req, res) => 
+  controller.createWidgetTicket(req, res)
+);
+
+
 export default ticketRouter;

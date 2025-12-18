@@ -435,6 +435,10 @@
   const ticketSection = document.getElementById("ticket-section");
   const tabs = document.querySelectorAll(".chatbot-tab");
   const closeBtn = document.querySelector(".chatbot-close");
+  // 🔑 Extract widget owner userId from script URL
+  const scriptTag = document.currentScript;
+  const widgetUserId = new URL(scriptTag.src).searchParams.get("id");
+
 
   // Toggle window
   bubble.addEventListener("click", () => {
@@ -506,7 +510,7 @@
           "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, widgetUserId }),
       });
 
       const data = await res.json();
@@ -540,13 +544,13 @@
       ticketSubmit.disabled = true;
       ticketSubmit.textContent = "Submitting...";
 
-      const res = await fetch("http://localhost:4000/tickets", {
+      const res = await fetch("http://localhost:4000/tickets/widget", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
-        body: JSON.stringify({ issue }),
+        body: JSON.stringify({ widgetUserId, issue }),
       });
 
       if (res.ok) {

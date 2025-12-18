@@ -41,7 +41,7 @@ userRouter.get('/verify/:token', async (req, res) => {
         await user.save();
 
         // Optional: Redirect to your frontend or card dashboard
-        return res.status(200).send('=> Email verified! You can now access the card feature.');
+        return res.status(200).send('=> Email verified! You can now access the Chatbot.');
     } catch (err) {
         console.error(err);
         return res.status(400).send('! Invalid or expired token');
