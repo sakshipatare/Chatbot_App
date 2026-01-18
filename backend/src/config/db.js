@@ -1,11 +1,17 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // const url = "mongodb://localhost:27017/chatbot_app";
-const url = "mongodb+srv://sakshi_chatbot_user:Chatbot@cluster0.ian6xtg.mongodb.net/chatbot?retryWrites=true&w=majority";
+const url = process.env.MONGO_ATLAS;
 
 
 export const connectUsingMongoose = async () => {
   try {
+    if (!url) {
+      throw new Error("MONGO_ATLAS is not defined in .env");
+    }
     await mongoose.connect(url);  //  No extra options needed
     console.log("=> Connected to MongoDB");
     console.log("=> DB NAME:", mongoose.connection.name);
