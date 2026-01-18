@@ -39,4 +39,29 @@ export default class userRepo {
             return null;
         }
     }
+
+    async updateResetToken(email, token, expire) {
+        return await userModel.findOneAndUpdate(
+            { email },
+            {
+                resetPasswordToken: token,
+                resetPasswordExpire: expire
+            }
+        );
+    }
+
+    async resetPassword(token, hashedPassword) {
+        return await userModel.findOneAndUpdate(
+            {
+                resetPasswordToken: token,
+                resetPasswordExpire: { $gt: Date.now() }
+            },
+            {
+                password: hashedPassword,
+                resetPasswordToken: undefined,
+                resetPasswordExpire: undefined
+            }
+        );
+    }
+
 }

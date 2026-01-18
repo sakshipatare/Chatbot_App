@@ -1,95 +1,86 @@
-import fs from "fs";
-import path from "path";
-import mammoth from "mammoth";
+import { DocumentModel } from "../dashboard/document/document.schema.js";
+import { MongoClient } from "mongodb";
+import RAGService from "./rag.service.js";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 
-import { DocumentModel } from "../dashboard/document/document.schema.js";
+dotenv.config();
 
-dotenv.config(); // load env
+console.log(process.env.MONGO_URI);
+const client = new MongoClient(process.env.MONGO_URI);
+await client.connect();
 
-const uploadsDir = path.join(process.cwd(), "uploads");
+const db = client.db("chatbot");
+const chunksCollection = db.collection("chunks");
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 class ChatbotService {
-  // Extract text from all documents
-  static async extractTextFromAllDocs() {
-    const files = fs.readdirSync(uploadsDir).filter(f => f.endsWith(".docx"));
-    if (!files.length) throw new Error("No .docx files found");
+  static async ingestDocument(filename) {
+    // 1. Find document in DB
+    const document = await DocumentModel.findOne({ fileName: filename });
+    if (!document) throw new Error("Document not found");
 
-    let allText = "";
-    for (const file of files) {
-      const filePath = path.join(uploadsDir, file);
-      const { value: html } = await mammoth.convertToHtml({ path: filePath });
-      const cleanText = html
-        .replace(/<a[^>]*href="([^"]+)"[^>]*>.*?<\/a>/gi, "$1")
-        .replace(/<\/?[^>]+(>|$)/g, "");
-      allText += `\n\n[Document: ${file}]\n${cleanText.trim()}`;
+    // 2. Extract text from file
+    const fullText = await this.extractTextFromExistingDoc(filename);
+
+    // 3. Create chunks + embeddings
+    await RAGService.ingestDocument(document._id, fullText);
+  }
+
+  static async answerQuestionRAG(question) {
+  // 1. Create embedding
+  const embeddingResp = await openai.embeddings.create({
+    model: "text-embedding-3-small",
+    input: question,
+  });
+
+  const questionEmbedding = embeddingResp.data[0].embedding;
+
+  console.log("=> Question:", question);
+  console.log("=> Question embedding size:", questionEmbedding.length);
+
+  // 2. Vector search (Atlas only)
+  const results = await chunksCollection.aggregate([
+    {
+      $vectorSearch: {
+        index: "embedding_index",
+        path: "embedding",
+        queryVector: questionEmbedding,
+        numCandidates: 100,
+        limit: 3
+      }
+    },
+    {
+      $project: {
+        text: 1,
+        score: { $meta: "vectorSearchScore" }
+      }
     }
-    return allText.trim();
-  }
+  ]).toArray();
 
-  // Extract text from a single document
+  console.log("=> Retrieved chunks:", results.length);
 
-//   static async extractTextFromExistingDoc(filename) {
-//     const filePath = path.join(uploadsDir, filename);
-//     if (!fs.existsSync(filePath)) throw new Error("File not found");
+  // 3. Build context
+  const context = results.map(r => r.text).join("\n\n");
 
-//     const { value: html } = await mammoth.convertToHtml({ path: filePath });
-//     return html
-//       .replace(/<a[^>]*href="([^"]+)"[^>]*>.*?<\/a>/gi, "$1")
-//       .replace(/<\/?[^>]+(>|$)/g, "")
-//       .trim();
-//   }
+  if (!context) return "No relevant information found.";
 
-static async extractTextFromExistingDoc(filename) {
-  // 1. Find document in DB by fileName
-  const document = await DocumentModel.findOne({ fileName: filename });
+  // 4. Ask LLM with context
+  const completion = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: "user",
+        content: `Answer ONLY using the context below:\n\n${context}\n\nQuestion: ${question}`
+      }
+    ],
+    temperature: 0,
+  });
 
-  if (!document) throw new Error("File not found in database");
-
-  // 2. Use filePath stored in DB
-  const filePath = path.join(process.cwd(), document.filePath);
-
-  if (!fs.existsSync(filePath)) {
-    throw new Error("Physical file not found on disk");
-  }
-
-  // 3. Extract text
-  const { value: html } = await mammoth.convertToHtml({ path: filePath });
-  return html
-    .replace(/<a[^>]*href="([^"]+)"[^>]*>.*?<\/a>/gi, "$1")
-    .replace(/<\/?[^>]+(>|$)/g, "")
-    .trim();
+  return completion.choices[0].message.content.trim();
 }
 
-  // Answer question using OpenAI
-  static async answerQuestion(text, question) {
-    const prompt = `
-You are a helpful assistant.
-Answer the question using only the information from the following documents.
-Include URLs if mentioned.
-
-${text}
-
-Question:
-${question}
-`;
-
-    try {
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo", // or gpt-4 if you have access
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0,
-      });
-
-      return completion.choices[0].message.content.trim();
-    } catch (err) {
-      console.error("OpenAI error:", err.message);
-      return "AI service is temporarily unavailable. Please try again later.";
-    }
-  }
 }
 
 export default ChatbotService;

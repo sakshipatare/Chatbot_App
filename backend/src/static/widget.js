@@ -21,17 +21,17 @@
 
     #chatbot-bubble {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 56px;
-      height: 56px;
+      bottom: 20px;
+      right: 20px;
+      width: 52px;
+      height: 52px;
       background: linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      font-size: 24px;
+      font-size: 22px;
       cursor: pointer;
       z-index: 99999;
       box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
@@ -56,10 +56,11 @@
 
     #chatbot-window {
       position: fixed;
-      bottom: 100px;
+      bottom: 110px;
       right: 24px;
       width: 400px;
-      max-height: 600px;
+      height: 600px;
+      max-height: calc(100vh - 150px);
       background: ${COLORS.surface};
       border-radius: 16px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
@@ -95,6 +96,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-shrink: 0;
     }
 
     .chatbot-close {
@@ -120,6 +122,7 @@
       display: flex;
       border-bottom: 1px solid ${COLORS.border};
       background: ${COLORS.background};
+      flex-shrink: 0;
     }
 
     .chatbot-tab {
@@ -152,6 +155,7 @@
       display: none;
       flex-direction: column;
       overflow: hidden;
+      min-height: 0;
     }
 
     .chatbot-section.active {
@@ -166,15 +170,18 @@
     #chat-area {
       flex: 1;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
+      min-height: 0;
     }
 
     .message-box {
       display: flex;
       margin-bottom: 8px;
+      width: 100%;
     }
 
     .message-box.user {
@@ -188,6 +195,8 @@
       font-size: 13px;
       line-height: 1.5;
       word-wrap: break-word;
+      word-break: break-word;
+      overflow-wrap: break-word;
       white-space: pre-wrap;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       animation: fadeIn 0.3s ease;
@@ -231,6 +240,7 @@
       background: white;
       display: flex;
       gap: 8px;
+      flex-shrink: 0;
     }
 
     #chat-input {
@@ -278,6 +288,7 @@
       background: ${COLORS.background};
       display: none;
       flex-direction: column;
+      overflow-y: auto;
     }
 
     #ticket-section.active {
@@ -289,6 +300,7 @@
       font-size: 13px;
       color: ${COLORS.text};
       margin-bottom: 8px;
+      flex-shrink: 0;
     }
 
     #ticket-input {
@@ -300,6 +312,7 @@
       font-family: inherit;
       resize: vertical;
       min-height: 100px;
+      max-height: 300px;
       transition: all 0.2s ease;
     }
 
@@ -320,6 +333,7 @@
       font-weight: 600;
       font-size: 13px;
       transition: all 0.2s ease;
+      flex-shrink: 0;
     }
 
     #ticket-submit:hover {
@@ -332,28 +346,46 @@
     }
 
     /* Scrollbar styling */
-    #chat-area::-webkit-scrollbar {
+    #chat-area::-webkit-scrollbar,
+    #ticket-section::-webkit-scrollbar {
       width: 6px;
     }
 
-    #chat-area::-webkit-scrollbar-track {
+    #chat-area::-webkit-scrollbar-track,
+    #ticket-section::-webkit-scrollbar-track {
       background: transparent;
     }
 
-    #chat-area::-webkit-scrollbar-thumb {
+    #chat-area::-webkit-scrollbar-thumb,
+    #ticket-section::-webkit-scrollbar-thumb {
       background: ${COLORS.border};
       border-radius: 3px;
     }
 
-    #chat-area::-webkit-scrollbar-thumb:hover {
+    #chat-area::-webkit-scrollbar-thumb:hover,
+    #ticket-section::-webkit-scrollbar-thumb:hover {
       background: #cbd5e1;
     }
 
     @media (max-width: 480px) {
+      #chatbot-bubble {
+        width: 64px;
+        height: 64px;
+        bottom: 20px;
+        right: 20px;
+      }
+
+      #chatbot-bubble svg {
+        width: 30px;
+        height: 30px;
+      }
+
       #chatbot-window {
         width: calc(100vw - 32px);
-        max-height: 70vh;
-        bottom: 80px;
+        height: calc(100vh - 140px);
+        max-height: calc(100vh - 140px);
+        bottom: 90px;
+        right: 16px;
       }
 
       .message-bubble {
@@ -372,8 +404,8 @@
   bubble.id = "chatbot-bubble";
   bubble.innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg"
-      width="26"
-      height="26"
+      width="32"
+      height="32"
       viewBox="0 0 24 24"
       fill="none"
       stroke="white"

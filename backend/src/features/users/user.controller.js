@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import userRepo from './user.repository.js';
 import bcrypt from 'bcryptjs';
-import { sendVerificationEmail } from '../../utils/sendEmail.js';
+import { sendVerificationEmail, sendResetPasswordEmail } from '../../utils/sendEmail.js';
 import { OAuth2Client } from "google-auth-library";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -126,12 +126,76 @@ export default class userController {
     }
   }
 
-  async getUserProfile(req, res){
-  res.json({
-    name: req.user.name,
-    email: req.user.email,
-    id: req.user._id
-  });
-};
+    async getUserProfile(req, res){
+        res.json({
+            name: req.user.name,
+            email: req.user.email,
+            id: req.user._id
+        });
+        };
+
+
+    async forgotPassword(req, res) {
+        const { email } = req.body;
+
+        try {
+            const user = await this.userRepo.getUserByEmail(email);
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            const resetToken = jwt.sign(
+                { email },
+                process.env.JWT_SECRET,
+                { expiresIn: "15m" }
+            );
+
+            await this.userRepo.updateResetToken(
+                email,
+                resetToken,
+                Date.now() + 15 * 60 * 1000
+            );
+
+            await sendResetPasswordEmail(email, resetToken);
+
+            return res.status(200).json({
+                message: "Reset password link sent to your email"
+            });
+
+        } catch (err) {
+            console.error("Forgot password error:", err);
+            return res.status(500).json({ message: "Error sending reset link" });
+        }
+    }
+
+    async resetPassword(req, res) {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        try {
+            jwt.verify(token, process.env.JWT_SECRET);
+
+            const hashedPassword = await bcrypt.hash(password, 12);
+
+            const user = await this.userRepo.resetPassword(token, hashedPassword);
+
+            if (!user) {
+                return res.status(400).json({
+                    message: "Invalid or expired token"
+                });
+            }
+
+            return res.status(200).json({
+                message: "Password reset successful"
+            });
+
+        } catch (err) {
+            console.error("Reset password error:", err);
+            return res.status(400).json({
+                message: "Invalid or expired token"
+            });
+        }
+    }
+
 
 }

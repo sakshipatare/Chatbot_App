@@ -11,6 +11,8 @@ import Documents from './components/Dashboard/Document/Document';
 import History from './components/Dashboard/History/History';
 import Script from './components/Dashboard/Script/Script';
 import Ticket from './components/Dashboard/Ticket/Ticket';
+import Forgot from './components/Auth/Forgot';
+import Reset from './components/Auth/Reset';
 
 import './App.css';
 
@@ -22,6 +24,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<Forgot />} />
+          <Route path="/reset-password/:token" element={<Reset />} />
           <Route path="/signup" element={<SignupForm />} />
 
           {/* Dashboard with nested routes */}

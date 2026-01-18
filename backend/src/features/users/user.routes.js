@@ -25,6 +25,14 @@ userRouter.get("/me", authMiddleware, (req, res, next) => {
     UserController.getUserProfile(req, res, next);
 });
 
+userRouter.post("/forgot-password", (req, res) => {
+    UserController.forgotPassword(req, res);
+});
+
+userRouter.post("/reset-password/:token", (req, res) => {
+    UserController.resetPassword(req, res);
+});
+
 
 //  Email Verification Route
 userRouter.get('/verify/:token', async (req, res) => {

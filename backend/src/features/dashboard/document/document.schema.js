@@ -14,4 +14,7 @@ export const documentSchema = new mongoose.Schema({
   uploadedAt: { type: Date, default: Date.now },
 });
 
-export const DocumentModel = mongoose.model("Document", documentSchema);
+export const DocumentModel =
+  mongoose.models.Document ||
+  mongoose.model("Document", documentSchema);
+
