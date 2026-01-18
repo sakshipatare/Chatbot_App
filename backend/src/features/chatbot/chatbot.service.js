@@ -6,8 +6,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-console.log(process.env.MONGO_URI);
-const client = new MongoClient(process.env.MONGO_URI);
+console.log(process.env.MONGO_ATLAS);
+const client = new MongoClient(process.env.MONGO_ATLAS);
 await client.connect();
 
 const db = client.db("chatbot");
