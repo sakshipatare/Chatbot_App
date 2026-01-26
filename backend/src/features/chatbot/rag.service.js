@@ -36,6 +36,7 @@ class RAGService {
         documentId,
         text: chunk,
         embedding,
+        sourceType: "document",
       });
     }
   }
@@ -49,6 +50,9 @@ class RAGService {
         queryVector: questionEmbedding,
         numCandidates: 100,
         limit: limit,
+        filter: {
+          sourceType: { $in: ["document", "website"] }
+        }
       },
     },
     {

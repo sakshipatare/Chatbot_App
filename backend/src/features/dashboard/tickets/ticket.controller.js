@@ -26,9 +26,9 @@ export default class TicketController {
 
   async createWidgetTicket(req, res) {
   try {
-    const { issue, widgetUserId } = req.body;
+    const { issue, userId } = req.body;
 
-    if (!widgetUserId) {
+    if (!userId) {
       return res.status(400).json({ message: "Widget userId missing" });
     }
 
@@ -38,7 +38,7 @@ export default class TicketController {
 
     // DASHBOARD OWNER (script owner)
     const ticket = await ticketRepo.createTicket({
-      userId: widgetUserId, //  OWNER DASHBOARD
+      userId: userId, //  OWNER DASHBOARD
       name,                 // visitor
       email,                // visitor
       issue,

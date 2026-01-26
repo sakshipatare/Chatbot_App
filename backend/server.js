@@ -12,6 +12,7 @@ import historyRouter from "./src/features/dashboard/history/history.routes.js";
 import linkRouter from "./src/features/dashboard/link/link.routes.js";
 import chatbotRouter from "./src/features/chatbot/chatbot.routes.js";
 import TicketRouter from "./src/features/dashboard/tickets/ticket.routes.js";
+import scraperRoutes from "./src/features/scraper/scraper.routes.js";
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use("/history", historyRouter);
 app.use("/link", linkRouter);
 app.use("/chatbot", chatbotRouter);
 app.use("/tickets", TicketRouter);
+app.use("/scraper", scraperRoutes);
 
 // basic health
 app.get("/", (req, res) => res.send("Chatbot backend running"));

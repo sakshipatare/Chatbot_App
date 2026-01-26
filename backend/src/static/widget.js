@@ -469,7 +469,7 @@
   const closeBtn = document.querySelector(".chatbot-close");
   // 🔑 Extract widget owner userId from script URL
   const scriptTag = document.currentScript;
-  const widgetUserId = new URL(scriptTag.src).searchParams.get("id");
+  const userId = new URL(scriptTag.src).searchParams.get("id");
 
 
   // Toggle window
@@ -542,7 +542,7 @@
           "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
-        body: JSON.stringify({ question, widgetUserId }),
+        body: JSON.stringify({ question, userId }),
       });
 
       const data = await res.json();
@@ -582,7 +582,7 @@
           "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
-        body: JSON.stringify({ widgetUserId, issue }),
+        body: JSON.stringify({ userId, issue }),
       });
 
       if (res.ok) {

@@ -7,13 +7,13 @@ class ChatbotController {
   // Ask from all documents
   static async processQuestionFromAllDocs(req, res) {
   try {
-    const { question, widgetUserId } = req.body;
+    const { question, userId } = req.body;
 
     if (!question) {
       return res.status(400).json({ error: "No question provided" });
     }
 
-    if (!widgetUserId) {
+    if (!userId) {
       return res.status(400).json({ message: "Widget userId missing" });
     }
 
@@ -22,7 +22,7 @@ class ChatbotController {
 
     // Save history
     await historyRepo.save({
-      userId: widgetUserId,
+      userId: userId,
       question,
       answer,
     });

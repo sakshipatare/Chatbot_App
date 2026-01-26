@@ -11,6 +11,7 @@ import Documents from './components/Dashboard/Document/Document';
 import History from './components/Dashboard/History/History';
 import Script from './components/Dashboard/Script/Script';
 import Ticket from './components/Dashboard/Ticket/Ticket';
+import WebsiteLink from './components/Dashboard/WebsiteLink/WebsiteLink';
 import Forgot from './components/Auth/Forgot';
 import Reset from './components/Auth/Reset';
 
@@ -33,6 +34,7 @@ function App() {
             <Route index element={<History />} /> 
             <Route path="details" element={<DetailsPage />} />
             <Route path="documents" element={<Documents />} />
+            <Route path="weblink" element={<WebsiteLink />} />
             <Route path="history" element={<History />} />
             <Route path="tickets" element={<Ticket />} />
             <Route path="script" element={<Script />} />

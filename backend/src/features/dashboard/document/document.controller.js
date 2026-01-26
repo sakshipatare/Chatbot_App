@@ -22,69 +22,74 @@ export default class DocumentController {
 
   //  UPLOAD + CHUNK + EMBED
   async uploadDocuments(req, res) {
-    try {
-      if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ message: "No files uploaded" });
+  try {
+    console.log(" uploadDocuments API called");
+
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files uploaded" });
+    }
+
+    const uploaded = [];
+
+    for (const file of req.files) {
+      if (!file.originalname.endsWith(".docx")) {
+        return res
+          .status(400)
+          .json({ message: "Only .docx files allowed" });
       }
 
-      const uploaded = [];
+      console.log("File path:", file.path);
 
-      for (const file of req.files) {
-        console.log(" uploadDocuments API called");
+      const buffer = fs.readFileSync(file.path);
+      const { value: extractedText } = await mammoth.extractRawText({ buffer });
 
-        const buffer = fs.readFileSync(file.path);
-        const { value: extractedText } = await mammoth.extractRawText({
-          buffer,
-        });
+      // 1️⃣ Save document
+      const saved = await this.repo.saveDocument({
+        fileName: file.originalname,
+        filePath: file.path,
+        fileText: extractedText || "",
+        uploadedBy: {
+          id: req.user._id,
+          name: req.user.name,
+          email: req.user.email,
+        },
+      });
 
-        console.log("=> Extracted text length:", extractedText?.length);
+      // 2️⃣ Chunk + Embedding
+      const chunks = this.splitIntoChunks(extractedText || "");
 
-        // 1️ Save document
-        const saved = await this.repo.saveDocument({
-          fileName: file.originalname,
-          filePath: file.path,
-          fileText: extractedText || "",
-          uploadedBy: {
-            id: req.user._id,
-            name: req.user.name,
-            email: req.user.email,
-          },
-        });
-
-        console.log("=> Document saved with ID:", saved._id);
-
-        // 2️⃣ Chunk + Embeddings
-        const chunks = this.splitIntoChunks(extractedText || "");
-
-        console.log("=> Total chunks created:", chunks.length);
-
-        for (const chunkText of chunks) {
-          console.log("=> Creating embedding for chunk length:", chunkText.length);
-
+      for (const chunkText of chunks) {
+        try {
           const embedding = await createEmbedding(chunkText);
-          console.log("=> Embedding size:", embedding.length);
 
           await ChunkModel.create({
             documentId: saved._id,
             text: chunkText,
             embedding,
+            sourceType: "document",
+            sourceId: saved._id,
           });
-
-          console.log("=> Chunk saved for document:", saved._id);
+        } catch (err) {
+          console.error("Embedding error:", err.message);
         }
-
-        uploaded.push(saved);
       }
 
-      res.status(201).json({
-        message: "Documents uploaded and indexed successfully",
-        files: uploaded,
-      });
-    } catch (err) {
-      console.error("Upload error:", err);
-      res.status(500).json({ message: "Error uploading documents" });
+      uploaded.push(saved);
     }
+
+    res.status(201).json({
+      message: "Documents uploaded and indexed successfully",
+      files: uploaded,
+    });
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ message: err.message });
   }
+}
 
   //  FETCH USER DOCUMENTS ( THIS WAS MISSING)
   async getMyDocuments(req, res) {

@@ -50,6 +50,17 @@ export default function DashboardLayout() {
               </NavLink>
 
               <NavLink
+                to="/dashboard/weblink"
+                className={({ isActive }) =>
+                  `font-medium transition-colors ${
+                    isActive ? "text-blue-600 font-semibold" : "text-gray-600 hover:text-blue-600"
+                  }`
+                }
+              >
+                Website Link
+              </NavLink>
+
+              <NavLink
                 to="/dashboard/history"
                 className={({ isActive }) =>
                   `font-medium transition-colors ${
